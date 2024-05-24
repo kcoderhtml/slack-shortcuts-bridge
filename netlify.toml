@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/api/"
+  to = "/.netlify/functions/slack-bridge"
+  status = 200
