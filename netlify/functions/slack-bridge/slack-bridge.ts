@@ -1,6 +1,5 @@
 import { Handler } from '@netlify/functions'
 import { App } from '@slack/bolt'
-import { error } from 'console'
 
 const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -8,8 +7,24 @@ const app = new App({
 })
 
 export const handler: Handler = async (event, context) => {
-  const json: { emoji: string, status: string, time: number } = JSON.parse(event.body!)
+  // check auth
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({
+        error: 'Method Not Allowed',
+      }),
+    }
+  } else if (!event.headers['authorization'] || event.headers['authorization'] !== process.env.API_TOKEN) {
+    return {
+      statusCode: 403,
+      body: JSON.stringify({
+        error: 'Unauthorized',
+      }),
+    }
+  }
 
+  const json: { emoji: string, status: string, time: number } = JSON.parse(event.body!)
   console.log(json)
 
   // validate the input
